@@ -29,6 +29,6 @@
     "telegram-passport": "^1.0.5"
   },
   "nbbpm": {
-    "compatibility": "^1.7.1"
+    "compatibility": "1.11.1"
   }
 }

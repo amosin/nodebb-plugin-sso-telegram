@@ -5,7 +5,7 @@
 			<div class="panel-body">
 				<p>
 					Create a <strong>Telegram Application</strong> via the
-					<a href="https://developers.telegram.com/apps/">Telegram Developers Page</a> and
+					<a href="https://core.telegram.org/api/obtaining_api_id">Telegram Developers Page</a> and
 					then paste your application details here.
 				</p>
 				<form role="form" class="sso-telegram-settings">
