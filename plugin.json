@@ -1,8 +1,8 @@
 {
-	"id": "nodebb-plugin-sso-facebook",
-	"name": "NodeBB Facebook SSO",
-	"description": "NodeBB Plugin that allows users to login/register via their Facebook account.",
-	"url": "https://github.com/julianlam/nodebb-plugin-sso-facebook",
+	"id": "nodebb-plugin-sso-telegram",
+	"name": "NodeBB Telegram SSO",
+	"description": "NodeBB Plugin that allows users to login/register via their Telegram account.",
+	"url": "https://github.com/garrettbryan/nodebb-plugin-sso-telegram",
 	"library": "./library.js",
 	"templates": "templates",
 	"hooks": [

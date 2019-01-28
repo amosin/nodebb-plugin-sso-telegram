@@ -1,7 +1,7 @@
-# NodeBB Facebook SSO
+# NodeBB Telegram SSO
 
-NodeBB Plugin that allows users to login/register via their Facebook account.
+NodeBB Plugin that allows users to login/register via their Telegram account.
 
 ## Installation
 
-    npm install nodebb-plugin-sso-facebook
+    npm install nodebb-plugin-sso-telegram

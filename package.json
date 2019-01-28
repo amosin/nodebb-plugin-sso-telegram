@@ -1,32 +1,32 @@
 {
-  "name": "nodebb-plugin-sso-facebook",
-  "version": "3.4.1",
-  "description": "NodeBB Facebook SSO",
+  "name": "nodebb-plugin-sso-telegram",
+  "version": "0.0.1",
+  "description": "NodeBB Telegram SSO",
   "main": "library.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/julianlam/nodebb-plugin-sso-facebook"
+    "url": "https://github.com/garrettbryan/nodebb-plugin-sso-telegram"
   },
   "keywords": [
     "nodebb",
     "plugin",
-    "facebook",
+    "telegram",
     "sso",
     "single sign on",
     "registration"
   ],
   "author": {
-    "name": "Julian Lam",
-    "email": "julian@nodebb.org"
+    "name": "Garrett Bryan",
+    "email": "garrettdavisbryan@gmail.com"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/julianlam/nodebb-plugin-sso-facebook/issues"
+    "url": "https://github.com/garrettbryan/nodebb-plugin-sso-telegram/issues"
   },
   "readme": "",
   "readmeFilename": "README.md",
   "dependencies": {
-    "passport-facebook": "~1.0.2"
+    "telegram-passport": "^1.0.5"
   },
   "nbbpm": {
     "compatibility": "^1.7.1"

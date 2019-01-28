@@ -1,14 +1,14 @@
 <div class="row">
 	<div class="col-xs-12">
 		<div class="panel panel-default">
-			<div class="panel-heading">Facebook Social Authentication</div>
+			<div class="panel-heading">Telegram Social Authentication</div>
 			<div class="panel-body">
 				<p>
-					Create a <strong>Facebook Application</strong> via the
-					<a href="https://developers.facebook.com/apps/">Facebook Developers Page</a> and
+					Create a <strong>Telegram Application</strong> via the
+					<a href="https://developers.telegram.com/apps/">Telegram Developers Page</a> and
 					then paste your application details here.
 				</p>
-				<form role="form" class="sso-facebook-settings">
+				<form role="form" class="sso-telegram-settings">
 					<div class="form-group">
 						<label for="app_id">Application ID</label>
 						<input type="text" id="app_id" name="app_id" title="Application ID" class="form-control" placeholder="Application ID"><br />

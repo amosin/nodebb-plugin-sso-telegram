@@ -6,7 +6,7 @@
 		meta = require.main.require('./src/meta'),
 		db = require.main.require('./src/database'),
 		passport = require.main.require('passport'),
-		passportFacebook = require('passport-facebook').Strategy,
+		passportTelegram = require('telegram-passport').Strategy,
 		nconf = require.main.require('nconf'),
 		async = require.main.require('async'),
 		winston = require.main.require('winston');
@@ -14,34 +14,34 @@
 	var authenticationController = require.main.require('./src/controllers/authentication');
 
 	var constants = Object.freeze({
-		'name': 'Facebook',
+		'name': 'Telegram',
 		'admin': {
-			'route': '/plugins/sso-facebook',
-			'icon': 'fa-facebook-square'
+			'route': '/plugins/sso-telegram',
+			'icon': 'fa-telegram'
 		}
 	});
 
-	var Facebook = {
+	var Telegram = {
 		settings: undefined
 	};
 
-	Facebook.init = function (params, callback) {
+	Telegram.init = function (params, callback) {
 		var hostHelpers = require.main.require('./src/routes/helpers');
 
 		function render(req, res) {
-			res.render('admin/plugins/sso-facebook', {});
+			res.render('admin/plugins/sso-telegram', {});
 		}
 
-		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);
-		params.router.get('/api/admin/plugins/sso-facebook', render);
+		params.router.get('/admin/plugins/sso-telegram', params.middleware.admin.buildHeader, render);
+		params.router.get('/api/admin/plugins/sso-telegram', render);
 
-		hostHelpers.setupPageRoute(params.router, '/deauth/facebook', params.middleware, [params.middleware.requireUser], function (req, res) {
-			res.render('plugins/sso-facebook/deauth', {
-				service: "Facebook",
+		hostHelpers.setupPageRoute(params.router, '/deauth/telegram', params.middleware, [params.middleware.requireUser], function (req, res) {
+			res.render('plugins/sso-telegram/deauth', {
+				service: "Telegram",
 			});
 		});
-		params.router.post('/deauth/facebook', [params.middleware.requireUser, params.middleware.applyCSRF], function (req, res, next) {
-			Facebook.deleteUserData({
+		params.router.post('/deauth/telegram', [params.middleware.requireUser, params.middleware.applyCSRF], function (req, res, next) {
+			Telegram.deleteUserData({
 				uid: req.user.uid,
 			}, function (err) {
 				if (err) {
@@ -55,33 +55,33 @@
 		callback();
 	};
 
-	Facebook.getSettings = function (callback) {
-		if (Facebook.settings) {
+	Telegram.getSettings = function (callback) {
+		if (Telegram.settings) {
 			return callback();
 		}
 
-		meta.settings.get('sso-facebook', function (err, settings) {
-			Facebook.settings = settings;
+		meta.settings.get('sso-telegram', function (err, settings) {
+			Telegram.settings = settings;
 			callback();
 		});
 	}
 
-	Facebook.getStrategy = function (strategies, callback) {
-		if (!Facebook.settings) {
-			return Facebook.getSettings(function () {
-				Facebook.getStrategy(strategies, callback);
+	Telegram.getStrategy = function (strategies, callback) {
+		if (!Telegram.settings) {
+			return Telegram.getSettings(function () {
+				Telegram.getStrategy(strategies, callback);
 			});
 		}
 
 		if (
-			Facebook.settings !== undefined &&
-			Facebook.settings.hasOwnProperty('app_id') && Facebook.settings.app_id &&
-			Facebook.settings.hasOwnProperty('secret') && Facebook.settings.secret
+			Telegram.settings !== undefined &&
+			Telegram.settings.hasOwnProperty('app_id') && Telegram.settings.app_id &&
+			Telegram.settings.hasOwnProperty('secret') && Telegram.settings.secret
 		) {
-			passport.use(new passportFacebook({
-				clientID: Facebook.settings.app_id,
-				clientSecret: Facebook.settings.secret,
-				callbackURL: nconf.get('url') + '/auth/facebook/callback',
+			passport.use(new passportTelegram({
+				clientID: Telegram.settings.app_id,
+				clientSecret: Telegram.settings.secret,
+				callbackURL: nconf.get('url') + '/auth/telegram/callback',
 				passReqToCallback: true,
 				profileFields: ['id', 'emails', 'name', 'displayName'],
 				enableProof: true,
@@ -106,16 +106,16 @@
 					if (profile._json.hasOwnProperty('email')) {
 						email = profile._json.email;
 					} else {
-						email = (profile.username ? profile.username : profile.id) + '@facebook.com';
+						email = (profile.username ? profile.username : profile.id) + '@telegram.com';
 					}
 
-					Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function (err, user) {
+					Telegram.login(profile.id, profile.displayName, email, 'https://graph.telegram.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function (err, user) {
 						if (err) {
 							return done(err);
 						}
 
 						// Require collection of email
-						if (email.endsWith('@facebook.com')) {
+						if (email.endsWith('@telegram.com')) {
 							req.session.registration = req.session.registration || {};
 							req.session.registration.uid = user.uid;
 							req.session.registration.fbid = profile.id;
@@ -129,9 +129,9 @@
 			}));
 
 			strategies.push({
-				name: 'facebook',
-				url: '/auth/facebook',
-				callbackURL: '/auth/facebook/callback',
+				name: 'telegram',
+				url: '/auth/telegram',
+				callbackURL: '/auth/telegram/callback',
 				icon: constants.admin.icon,
 				scope: 'public_profile, email'
 			});
@@ -140,12 +140,12 @@
 		callback(null, strategies);
 	};
 
-	Facebook.appendUserHashWhitelist = function (data, callback) {
+	Telegram.appendUserHashWhitelist = function (data, callback) {
 		data.whitelist.push('fbid');
 		return setImmediate(callback, null, data);
 	};
 
-	Facebook.getAssociation = function (data, callback) {
+	Telegram.getAssociation = function (data, callback) {
 		user.getUserField(data.uid, 'fbid', function (err, fbId) {
 			if (err) {
 				return callback(err, data);
@@ -154,15 +154,15 @@
 			if (fbId) {
 				data.associations.push({
 					associated: true,
-					url: 'https://facebook.com/' + fbId,
-					deauthUrl: nconf.get('url') + '/deauth/facebook',
+					url: 'https://telegram.com/' + fbId,
+					deauthUrl: nconf.get('url') + '/deauth/telegram',
 					name: constants.name,
 					icon: constants.admin.icon
 				});
 			} else {
 				data.associations.push({
 					associated: false,
-					url: nconf.get('url') + '/auth/facebook',
+					url: nconf.get('url') + '/auth/telegram',
 					name: constants.name,
 					icon: constants.admin.icon
 				});
@@ -172,17 +172,17 @@
 		})
 	};
 
-	Facebook.prepareInterstitial = function (data, callback) {
+	Telegram.prepareInterstitial = function (data, callback) {
 		// Only execute if:
 		//   - uid and fbid are set in session
-		//   - email ends with "@facebook.com"
+		//   - email ends with "@telegram.com"
 		if (data.userData.hasOwnProperty('uid') && data.userData.hasOwnProperty('fbid')) {
 			user.getUserField(data.userData.uid, 'email', function (err, email) {
-				if (email && email.endsWith('@facebook.com')) {
+				if (email && email.endsWith('@telegram.com')) {
 					data.interstitials.push({
-						template: 'partials/sso-facebook/email.tpl',
+						template: 'partials/sso-telegram/email.tpl',
 						data: {},
-						callback: Facebook.storeAdditionalData
+						callback: Telegram.storeAdditionalData
 					});
 				}
 
@@ -193,7 +193,7 @@
 		}
 	};
 
-	Facebook.storeAdditionalData = function (userData, data, callback) {
+	Telegram.storeAdditionalData = function (userData, data, callback) {
 		async.waterfall([
 			// Reset email confirm throttle
 			async.apply(db.delete, 'uid:' + userData.uid + ':confirm:email:sent'),
@@ -207,24 +207,24 @@
 		], callback);
 	};
 
-	Facebook.storeTokens = function (uid, accessToken, refreshToken) {
+	Telegram.storeTokens = function (uid, accessToken, refreshToken) {
 		//JG: Actually save the useful stuff
 		winston.verbose("Storing received fb access information for uid(" + uid + ") accessToken(" + accessToken + ") refreshToken(" + refreshToken + ")");
 		user.setUserField(uid, 'fbaccesstoken', accessToken);
 		user.setUserField(uid, 'fbrefreshtoken', refreshToken);
 	};
 
-	Facebook.login = function (fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
-		winston.verbose("Facebook.login fbid, name, email, picture: " + fbid + ", " + name + ", " + email + ", " + picture);
+	Telegram.login = function (fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
+		winston.verbose("Telegram.login fbid, name, email, picture: " + fbid + ", " + name + ", " + email + ", " + picture);
 
-		Facebook.getUidByFbid(fbid, function (err, uid) {
+		Telegram.getUidByFbid(fbid, function (err, uid) {
 			if (err) {
 				return callback(err);
 			}
 
 			if (uid !== null) {
 				// Existing User
-				Facebook.storeTokens(uid, accessToken, refreshToken);
+				Telegram.storeTokens(uid, accessToken, refreshToken);
 
 				callback(null, {
 					uid: uid
@@ -232,10 +232,10 @@
 			} else {
 				// New User
 				var success = function (uid) {
-					// Save facebook-specific information to the user
+					// Save telegram-specific information to the user
 					user.setUserField(uid, 'fbid', fbid);
 					db.setObjectField('fbid:uid', fbid, uid);
-					var autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1 : 0;
+					var autoConfirm = Telegram.settings && Telegram.settings.autoconfirm === "on" ? 1 : 0;
 					user.setUserField(uid, 'email:confirmed', autoConfirm);
 
 					if (autoConfirm) {
@@ -248,7 +248,7 @@
 						user.setUserField(uid, 'picture', picture);
 					}
 
-					Facebook.storeTokens(uid, accessToken, refreshToken);
+					Telegram.storeTokens(uid, accessToken, refreshToken);
 
 					callback(null, {
 						uid: uid
@@ -262,8 +262,8 @@
 
 					if (!uid) {
 						// Abort user creation if registration via SSO is restricted
-						if (Facebook.settings.disableRegistration === 'on') {
-							return callback(new Error('[[error:sso-registration-disabled, Facebook]]'));
+						if (Telegram.settings.disableRegistration === 'on') {
+							return callback(new Error('[[error:sso-registration-disabled, Telegram]]'));
 						}
 
 						user.create({ username: name, email: email }, function (err, uid) {
@@ -281,7 +281,7 @@
 		});
 	};
 
-	Facebook.getUidByFbid = function (fbid, callback) {
+	Telegram.getUidByFbid = function (fbid, callback) {
 		db.getObjectField('fbid:uid', fbid, function (err, uid) {
 			if (err) {
 				return callback(err);
@@ -290,7 +290,7 @@
 		});
 	};
 
-	Facebook.addMenuItem = function (custom_header, callback) {
+	Telegram.addMenuItem = function (custom_header, callback) {
 		custom_header.authentication.push({
 			'route': constants.admin.route,
 			'icon': constants.admin.icon,
@@ -300,7 +300,7 @@
 		callback(null, custom_header);
 	};
 
-	Facebook.deleteUserData = function (data, callback) {
+	Telegram.deleteUserData = function (data, callback) {
 		var uid = data.uid;
 
 		async.waterfall([
@@ -313,12 +313,12 @@
 			},
 		], function (err) {
 			if (err) {
-				winston.error('[sso-facebook] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
+				winston.error('[sso-telegram] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
 				return callback(err);
 			}
 			callback(null, uid);
 		});
 	};
 
-	module.exports = Facebook;
+	module.exports = Telegram;
 }(module));
