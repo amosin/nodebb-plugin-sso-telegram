@@ -6,7 +6,7 @@
 		meta = require.main.require('./src/meta'),
 		db = require.main.require('./src/database'),
 		passport = require.main.require('passport'),
-		passportTelegram = require('telegram-passport').Strategy,
+		passportTelegram = require('passport-telegram').Strategy,
 		nconf = require.main.require('nconf'),
 		async = require.main.require('async'),
 		winston = require.main.require('winston');
