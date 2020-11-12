@@ -6,7 +6,7 @@
 		meta = require.main.require('./src/meta'),
 		db = require.main.require('./src/database'),
 		passport = require.main.require('passport'),
-		passportTelegram = require('passport-telegram').Strategy,
+		passportTelegram = require('passport-telegram-official').TelegramStrategy;
 		nconf = require.main.require('nconf'),
 		async = require.main.require('async'),
 		winston = require.main.require('winston');
@@ -79,8 +79,7 @@
 			Telegram.settings.hasOwnProperty('secret') && Telegram.settings.secret
 		) {
 			passport.use(new passportTelegram({
-				clientID: Telegram.settings.app_id,
-				clientSecret: Telegram.settings.secret,
+				botToken: Telegram.settings.app_id,
 				callbackURL: nconf.get('url') + '/auth/telegram/callback',
 				passReqToCallback: true,
 				profileFields: ['id', 'emails', 'name', 'displayName'],
@@ -109,7 +108,11 @@
 						email = (profile.username ? profile.username : profile.id) + '@telegram.com';
 					}
 
-					Telegram.login(profile.id, profile.displayName, email, 'https://graph.telegram.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function (err, user) {
+					Telegram.login(profile.id, profile.displayName, email, 'https://graph.telegram.com/' + profile.id + '/picture?type=large', 
+						       
+						       
+						       
+						       , refreshToken, profile, function (err, user) {
 						if (err) {
 							return done(err);
 						}
